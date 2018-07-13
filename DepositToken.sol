@@ -2,26 +2,26 @@ pragma solidity ^0.4.24;
 
 contract depositToken {
     
-    struct depositStruct { //создание параметров вклада
-        bool demolished; //закрытие вклада
-        address owner;//владелец вклада
-        uint percent;//процент вклада
-        uint startDate;//дата начала вклада
-        uint depositTime;//время вклада
+    struct depositStruct { //СЃРѕР·РґР°РЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РІРєР»Р°РґР°
+        bool demolished; //Р·Р°РєСЂС‹С‚РёРµ РІРєР»Р°РґР°
+        address owner;//РІР»Р°РґРµР»РµС† РІРєР»Р°РґР°
+        uint percent;//РїСЂРѕС†РµРЅС‚ РІРєР»Р°РґР°
+        uint startDate;//РґР°С‚Р° РЅР°С‡Р°Р»Р° РІРєР»Р°РґР°
+        uint depositTime;//РІСЂРµРјСЏ РІРєР»Р°РґР°
         uint deposiAmount;
         uint percentAmount;
     }
-        uint depositCount=0;//колличество вкладоы
+        uint depositCount=0;//РєРѕР»Р»РёС‡РµСЃС‚РІРѕ РІРєР»Р°РґРѕС‹
         address dev;
         uint[] book;
-    mapping (uint => depositStruct) public depositList; //создание словаря где ключ адресс токена, а значение список параметров
-    mapping(address=>bool) isBank;// только банки могут открывать и закрывать вклады
+    mapping (uint => depositStruct) public depositList; //СЃРѕР·РґР°РЅРёРµ СЃР»РѕРІР°СЂСЏ РіРґРµ РєР»СЋС‡ Р°РґСЂРµСЃСЃ С‚РѕРєРµРЅР°, Р° Р·РЅР°С‡РµРЅРёРµ СЃРїРёСЃРѕРє РїР°СЂР°РјРµС‚СЂРѕРІ
+    mapping(address=>bool) isBank;// С‚РѕР»СЊРєРѕ Р±Р°РЅРєРё РјРѕРіСѓС‚ РѕС‚РєСЂС‹РІР°С‚СЊ Рё Р·Р°РєСЂС‹РІР°С‚СЊ РІРєР»Р°РґС‹
     mapping(address =>uint[]) UserVallet;
 
-    event Transfer(address, address, address);//здесь устал писать коментарии
+    event Transfer(address, address, address);//Р·РґРµСЃСЊ СѓСЃС‚Р°Р» РїРёСЃР°С‚СЊ РєРѕРјРµРЅС‚Р°СЂРёРё
     event CreateDeposit(uint, uint, uint ,address);
     
-    function createDeposit(uint _percent,uint _depositTime, uint _money) public //открытие вклада
+    function createDeposit(uint _percent,uint _depositTime, uint _money) public //РѕС‚РєСЂС‹С‚РёРµ РІРєР»Р°РґР°
     {
         depositCount++;
         uint id = depositCount;
@@ -32,16 +32,16 @@ contract depositToken {
         emit CreateDeposit(_percent,timeNow,_depositTime,  msg.sender);
     }
     
-    function transfer(address _to, uint _tokenId) public{ //передача вклада
+    function transfer(address _to, uint _tokenId) public{ //РїРµСЂРµРґР°С‡Р° РІРєР»Р°РґР°
         require(depositList[_tokenId].owner == msg.sender||depositList[_tokenId].demolished!=true);
-    { //если условие не выполнится будет revert(), т.е откат назад
+    { //РµСЃР»Рё СѓСЃР»РѕРІРёРµ РЅРµ РІС‹РїРѕР»РЅРёС‚СЃСЏ Р±СѓРґРµС‚ revert(), С‚.Рµ РѕС‚РєР°С‚ РЅР°Р·Р°Рґ
                 depositList[_tokenId].owner = _to;
                 emit Transfer(msg.sender, _to, depositList[_tokenId].owner);
             }
     }
     
-    function demolish(uint _tokenId) public{//закрытие вклада
-        require(depositList[_tokenId].owner == msg.sender);//проверка на владельца
+    function demolish(uint _tokenId) public{//Р·Р°РєСЂС‹С‚РёРµ РІРєР»Р°РґР°
+        require(depositList[_tokenId].owner == msg.sender);//РїСЂРѕРІРµСЂРєР° РЅР° РІР»Р°РґРµР»СЊС†Р°
         depositList[_tokenId].demolished=true;
     }
     function registerVendor(address _bank) public
@@ -66,7 +66,7 @@ contract depositToken {
     {
         return UserVallet[msg.sender].length;
     }
-    function setBank() public //установка пользователя банком 
+    function setBank() public //СѓСЃС‚Р°РЅРѕРІРєР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Р±Р°РЅРєРѕРј 
     {
      if (msg.sender==dev)
      {
