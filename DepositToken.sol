@@ -1,5 +1,8 @@
 pragma solidity ^0.4.24;
-
+contract Config {
+    function onERC721Received(address,address,uint,bytes) public returns (address adr);
+    function lookup(uint id) public returns (address adr);
+}
 contract depositToken {
     
     struct depositStruct { //создание параметров вклада
@@ -14,7 +17,7 @@ contract depositToken {
         uint depositCount=0;//колличество вкладоы
         address dev;
         uint[] book;
-    mapping (uint => depositStruct) public depositList; //создание словаря где ключ адресс токена, а значение список параметров
+    mapping (uint => depositStruct) public depositList; //создание словаря где ключ id токена, а значение список параметров
     mapping(address=>bool) isBank;// только банки могут открывать и закрывать вклады
     mapping(address =>uint[]) UserVallet;
 
@@ -39,6 +42,19 @@ contract depositToken {
                 emit Transfer(msg.sender, _to, depositList[_tokenId].owner);
             }
     }
+        function safeTransferFrom(address _from , address _to, uint _tokenId, bytes data) external payable
+        {
+            if (isContract(_to))
+            {
+                Config toContract = Config(_to);
+                transfer(_to, _tokenId);
+                toContract.onERC721Received(_from,  _to,  _tokenId,  data);
+            }
+            else{
+                transfer(_to, _tokenId);
+
+            }
+        }
     
     function demolish(uint _tokenId) public{//закрытие вклада
         require(depositList[_tokenId].owner == msg.sender);//проверка на владельца
@@ -62,9 +78,18 @@ contract depositToken {
         uint tkId=UserVallet[msg.sender][_num];
         return tkId;
     }
-    function getSizeVallet() public view returns(uint)
+    function balanceOf() public view returns(uint)
     {
         return UserVallet[msg.sender].length;
+    }
+    function ownerOf(uint _tokenId) public view returns (address){
+            return depositList[_tokenId].owner;
+    }
+    function isContract(address addr) public returns (bool) {
+      uint size;
+    assembly { size := extcodesize(addr) }
+    return size > 0;
+    
     }
     function setBank() public //установка пользователя банком 
     {
