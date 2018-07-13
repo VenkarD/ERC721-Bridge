@@ -85,7 +85,7 @@ contract depositToken {
     function ownerOf(uint _tokenId) public view returns (address){
             return depositList[_tokenId].owner;
     }
-    function isContract(address addr) public returns (bool) {
+    function isContract(address addr) public view returns (bool) {
       uint size;
     assembly { size := extcodesize(addr) }
     return size > 0;
