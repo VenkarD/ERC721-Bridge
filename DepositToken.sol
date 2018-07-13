@@ -19,7 +19,7 @@ contract depositToken {
         uint[] book;
     mapping (uint => depositStruct) public depositList; //создание словаря где ключ id токена, а значение список параметров
     mapping(address=>bool) isBank;// только банки могут открывать и закрывать вклады
-    mapping(address =>uint[]) UserVallet;
+    mapping(address =>uint[]) UserWallet;
 
     event Transfer(address, address, address);//здесь устал писать коментарии
     event CreateDeposit(uint, uint, uint ,address);
@@ -31,7 +31,7 @@ contract depositToken {
         isBank[msg.sender] ==true;
         uint timeNow =0;
         depositList[id] = depositStruct({demolished: false, owner: msg.sender, percent: _percent, startDate:timeNow, depositTime:_depositTime, deposiAmount:_money, percentAmount:0});
-        UserVallet[msg.sender].push(id);
+        UserWallet[msg.sender].push(id);
         emit CreateDeposit(_percent,timeNow,_depositTime,  msg.sender);
     }
     
@@ -39,6 +39,7 @@ contract depositToken {
         require(depositList[_tokenId].owner == msg.sender||depositList[_tokenId].demolished!=true);
     { //если условие не выполнится будет revert(), т.е откат назад
                 depositList[_tokenId].owner = _to;
+                UserWallet[msg.sender].delete()
                 emit Transfer(msg.sender, _to, depositList[_tokenId].owner);
             }
     }
@@ -75,21 +76,28 @@ contract depositToken {
     }
     function getTokenId(uint _num)public view returns(uint)
     {
-        uint tkId=UserVallet[msg.sender][_num];
+        uint tkId=UserWallet[msg.sender][_num];
         return tkId;
     }
     function balanceOf() public view returns(uint)
     {
-        return UserVallet[msg.sender].length;
+        return UserWallet[msg.sender].length;
     }
     function ownerOf(uint _tokenId) public view returns (address){
             return depositList[_tokenId].owner;
     }
-    function isContract(address addr) public returns (bool) {
+    function isContract(address addr) public view returns (bool) {
       uint size;
     assembly { size := extcodesize(addr) }
     return size > 0;
     
+    }
+    function setPercent(uint _tokenId, uint _percent){
+        depositList[_tokenId].percent=_percent;
+    }
+    function indexOfId(uint _tokenId)
+    {
+        //for(uint i=0; )
     }
     function setBank() public //установка пользователя банком 
     {
