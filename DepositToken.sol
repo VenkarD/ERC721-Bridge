@@ -48,6 +48,7 @@ contract depositToken {
     { //если условие не выполнится будет revert(), т.е откат назад
                 depositList[_tokenId].owner = _to;
                 emit Transfer(msg.sender, _to, depositList[_tokenId].owner);
+                //удаление токена из кошелька
             }
     }
         function safeTransferFrom(address _from , address _to, uint _tokenId, bytes data) external payable
@@ -66,6 +67,7 @@ contract depositToken {
     
     function demolish(uint _tokenId) public{//закрытие вклада
         require(depositList[_tokenId].owner == msg.sender);//проверка на владельца
+        //будет ли токен терять владельца
         depositList[_tokenId].demolished=true;
     }
     function registerVendor(address _bank) public
