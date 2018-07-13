@@ -1,4 +1,5 @@
 pragma solidity ^0.4.24;
+//Токен 
 contract Config {
     function onERC721Received(address,address,uint,bytes) public returns (address adr);
     function lookup(uint id) public returns (address adr);
@@ -11,15 +12,15 @@ contract depositToken {
         uint percent;//процент вклада
         uint startDate;//дата начала вклада
         uint depositTime;//время вклада
-        uint deposiAmount;
-        uint percentAmount;
+        uint deposiAmount;//начисленная сумма
+        uint percentAmount;//начисленный процент
     }
         uint depositCount=0;//колличество вкладоы
-        address dev;
+        address dev;//адрес разработчика, для добавления новых банков
         uint[] book;
     mapping (uint => depositStruct) public depositList; //создание словаря где ключ id токена, а значение список параметров
     mapping(address=>bool) isBank;// только банки могут открывать и закрывать вклады
-    mapping(address =>uint[]) UserVallet;
+    mapping(address =>uint[]) UserVallet;//кошелек пользователя
 
     event Transfer(address, address, address);//здесь устал писать коментарии
     event CreateDeposit(uint, uint, uint ,address);
@@ -42,6 +43,13 @@ contract depositToken {
                 emit Transfer(msg.sender, _to, depositList[_tokenId].owner);
             }
     }
+    function transfer(addres _from, addres _to, uint _tokenId) public{
+     require(depositList[_tokenId].owner == _from||depositList[_tokenId].demolished!=true);
+    { //если условие не выполнится будет revert(), т.е откат назад
+                depositList[_tokenId].owner = _to;
+                emit Transfer(msg.sender, _to, depositList[_tokenId].owner);
+            }
+    }
         function safeTransferFrom(address _from , address _to, uint _tokenId, bytes data) external payable
         {
             if (isContract(_to))
@@ -51,7 +59,7 @@ contract depositToken {
                 toContract.onERC721Received(_from,  _to,  _tokenId,  data);
             }
             else{
-                transfer(_to, _tokenId);
+                transfer(_from,_to, _tokenId);
 
             }
         }
