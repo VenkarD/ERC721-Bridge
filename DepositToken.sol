@@ -4,7 +4,7 @@ contract Config {
     function onERC721Received(address,address,uint,bytes) public returns (address adr);
     function lookup(uint id) public returns (address adr);
 }
-contract depositToken {
+contract mainContract {
     
     struct depositStruct { //создание параметров вклада
         bool demolished; //закрытие вклада
@@ -18,6 +18,8 @@ contract depositToken {
         uint depositCount=0;//колличество вкладоы
         address dev;//адрес разработчика, для добавления новых банков
         uint[] book;
+        
+         bytes4 private constant ERC721_RECEIVED = 0x150b7a02;
         
     mapping (uint => depositStruct) public depositList; //создание словаря где ключ id токена, а значение список параметров
     mapping(address=>bool) isBank;// только банки могут открывать и закрывать вклады
@@ -64,7 +66,8 @@ contract depositToken {
                 Config toContract = Config(_to);
                 transfer(_to, _tokenId);
 
-                toContract.onERC721Received(_from,  _to,  _tokenId,  data);
+                bytes4 retval = toContract.onERC721Received(_from,  _to,  _tokenId,  data);
+                require (retval == ERC721_RECEIVED);
             }
             else{
                 transfer(_from,_to, _tokenId);
@@ -77,6 +80,7 @@ contract depositToken {
         //будет ли токен терять владельца
         delTokenVallet(_tokenId);
         depositList[_tokenId].demolished=true;
+        depositCount-=1;
     }
     function registerVendor(address _bank) public
     {//registering a new vendor
