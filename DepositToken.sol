@@ -1,7 +1,7 @@
-pragma solidity ^0.4.24;
+    pragma solidity ^0.4.24;
 //Токен 
 contract Config {
-    function onERC721Received(address,address,uint,bytes) public returns (address adr);
+    function onERC721Received(address,address,uint,bytes) public returns (bytes4);
     function lookup(uint id) public returns (address adr);
 }
 contract mainContract {
@@ -14,6 +14,7 @@ contract mainContract {
         uint AmStock;//колличество акций
         uint StockPrice;//начальная стоимость акций
         uint CurentAmount;//стоимость акций сейчас 
+        
     }
         uint depositCount=0;//колличество вкладоы
         address dev;//адрес разработчика, для добавления новых банков
@@ -25,18 +26,18 @@ contract mainContract {
     mapping(address=>bool) isBank;// только банки могут открывать и закрывать вклады
     mapping(address =>uint[]) UserVallet;//кошелек пользователя
     mapping(address =>bool) isBridge;
+    mapping (uint => uint) countTransaction;
 
     event Transfer(address, address, address);//здесь устал писать коментарии
     event CreateDeposit(uint, uint, uint ,address);
     event TokenRecovered(uint _tokenId, address _owner);
-    bytes4 internal constant ERC721_RECEIVED = 0x150b7a02;
 
     //Базовые функции
     function createDeposit(uint _percent,uint _amstock, uint _money) public //открытие вклада
     {
         depositCount++;
         uint id = depositCount;
-        isBank[msg.sender] ==true;
+        //require(isBank[msg.sender] ==true);
         uint timeNow =0;
         depositList[id] = depositStruct({demolished: false, owner: msg.sender, percent: _percent, AmStock:_amstock, StockPrice:_money, CurentAmount:0});
         UserVallet[msg.sender].push(id);
@@ -122,6 +123,12 @@ contract mainContract {
          isBank[msg.sender]=true;
      }
     }
+  //  function verificationTransaction(_tokenId) view returns(bool)
+//    {
+  //      require(countTransaction[_tokenId]++);
+    //    
+     //   
+    //}
     //assembly function
     //Получение информации о контракте
     function isContract(address addr) public view returns (bool) {
@@ -170,10 +177,11 @@ contract mainContract {
     {
      return (false, address(_data[1]),uint(_data[2]),uint(_data[3]),uint(_data[4]),uint(_data[5]));
     }
-    function recoveryToken(address _owner, uint _tokenId,bytes32[6] _data) public
+    function recoveryToken( uint _tokenId,bytes32[6] _data) public
     {
         //Вот тут проверки будутит))))
-        require(isBridge(msg.sender));
+        require(isBridge[msg.sender]);
+        //require(verificationTransaction());
         uint percent;
         uint AmStock;
         uint StockPrice;
@@ -182,7 +190,7 @@ contract mainContract {
         address owner;
         (demolished, owner, percent,AmStock,StockPrice,CurentAmount) = deserealizeData(_data); 
         depositList[_tokenId]= depositStruct({demolished: false, owner: owner, percent: percent, AmStock:AmStock, StockPrice:StockPrice, CurentAmount:CurentAmount});
-        emit TokenRecovered(_tokenId, owner)
+        emit TokenRecovered(_tokenId, owner);
         
     }
     
