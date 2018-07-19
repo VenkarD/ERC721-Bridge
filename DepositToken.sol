@@ -196,10 +196,10 @@ contract mainContract {
     
     function SetPermissionsToRecovery(address _address) public
     {
-        if(msg.sender==dev)
-        {
-            isBridge[_address]=true;
-        }
+        require(msg.sender==dev);
+        
+        isBridge[_address]=true;
+        
         
     }
     
