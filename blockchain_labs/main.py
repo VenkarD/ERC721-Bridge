@@ -1,4 +1,5 @@
 import time
+from multiprocessing import Process
 
 from web3 import Web3, HTTPProvider
 
@@ -43,8 +44,8 @@ class Wb:
                 }
                 tx = self.to_bridge.functions.transferApproved(
                     ev.args['_from'],
-                    ev.args['_tokenId'],
-                    ev.args['data'],
+                    ev.args['_tokenVIN'],
+                    ev.args['_data'],
                     ev.transactionHash
                 ).buildTransaction(tx_foreign)
                 signed_tx = self.acct.signTransaction(tx)
@@ -60,11 +61,12 @@ class Wb:
             self.send_transaction(data)
 
 
-Home = Wb(abi_bridge, 0x48656c6c6f2c20776f726c6448656c6c6f2c20776f726c6448656c6c6f2c2048, sokol, kovan,
-          0xaf5d6cceab8c071741545fe7e0da0512461f6b62, 0xaf5d6cceab8c071741545fe7e0da0512461f6b62)
-Foreign = Wb(abi_bridge, 0x48656c6c6f2c20776f726c6448656c6c6f2c20776f726c6448656c6c6f2c2048, kovan, sokol,
-             0xaf5d6cceab8c071741545fe7e0da0512461f6b62, 0xaf5d6cceab8c071741545fe7e0da0512461f6b62)
-
-
-
-Foreign.start_monitor()
+if __name__ == "__main__":
+    Home = Wb(abi_bridge, 0x48656c6c6f2c20776f726c6448656c6c6f2c20776f726c6448656c6c6f2c2048, sokol, kovan,
+              0xaf5d6cceab8c071741545fe7e0da0512461f6b62, 0xaf5d6cceab8c071741545fe7e0da0512461f6b62)
+    Foreign = Wb(abi_bridge, 0x48656c6c6f2c20776f726c6448656c6c6f2c20776f726c6448656c6c6f2c2048, kovan, sokol,
+                 0xaf5d6cceab8c071741545fe7e0da0512461f6b62, 0xaf5d6cceab8c071741545fe7e0da0512461f6b62)
+    home_proccess = Process(target=Home.start_monitor())
+    home_proccess.start()
+    foreign_proccess = Process(target=Foreign.start_monitor())
+    foreign_proccess.start()
