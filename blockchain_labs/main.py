@@ -3,7 +3,7 @@ from multiprocessing import Process
 
 from web3 import Web3, HTTPProvider
 
-from settings import abi_bridge, sokol, kovan
+from settings import abi_bridge, sokol, kovan, private_key, from_address, to_address
 
 
 class Wb:
@@ -62,10 +62,10 @@ class Wb:
 
 
 if __name__ == "__main__":
-    Home = Wb(abi_bridge, 0x48656c6c6f2c20776f726c6448656c6c6f2c20776f726c6448656c6c6f2c2048, sokol, kovan,
-              0xaf5d6cceab8c071741545fe7e0da0512461f6b62, 0xaf5d6cceab8c071741545fe7e0da0512461f6b62)
-    Foreign = Wb(abi_bridge, 0x48656c6c6f2c20776f726c6448656c6c6f2c20776f726c6448656c6c6f2c2048, kovan, sokol,
-                 0xaf5d6cceab8c071741545fe7e0da0512461f6b62, 0xaf5d6cceab8c071741545fe7e0da0512461f6b62)
+    Home = Wb(abi_bridge, private_key, sokol, kovan,
+              from_address, to_address)
+    Foreign = Wb(abi_bridge, private_key, kovan, sokol,
+                 from_address, to_address)
     home_proccess = Process(target=Home.start_monitor())
     home_proccess.start()
     foreign_proccess = Process(target=Foreign.start_monitor())
