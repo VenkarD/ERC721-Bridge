@@ -1,6 +1,6 @@
     pragma solidity ^0.4.24;
 //Токен 
-contract Config {
+contract Bridge {
     function onERC721Received(address,address,uint,bytes) public returns (bytes4);
     function lookup(uint id) public returns (address adr);
 }
@@ -66,7 +66,7 @@ contract mainContract {
         {
             if (isContract(_to))
             {
-                Config toContract = Config(_to);
+                Bridge toContract = Bridge(_to);
                 transfer(_to, _tokenId);
 
                 bytes4 retval = toContract.onERC721Received(_from,  _to,  _tokenId,  data);
@@ -91,9 +91,9 @@ contract mainContract {
         isBank[_bank]=true;//giving permisson to create phones for a new vendor
     }
     //функции для разных расчетов токена
-    function getSum(uint _changepercent, uint _amstock, uint _stockprice) public pure returns(uint)
+    function getSum(uint _tokenId) public view returns(uint)
     {
-        return _amstock*(_stockprice*(1+(_changepercent / 100)));    
+        return depositList[_tokenId].AmStock*(depositList[_tokenId].StockPrice*(1+(changepercent / 100)));    
         
     }
     //
