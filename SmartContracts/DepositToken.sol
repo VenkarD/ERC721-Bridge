@@ -16,6 +16,7 @@ contract mainContract {
         uint CurentAmount;//стоимость акций сейчас 
         
     }
+        uint changepercent = 15;
         uint depositCount=0;//колличество вкладоы
         address dev;//адрес разработчика, для добавления новых банков
         uint[] book;
@@ -56,6 +57,7 @@ contract mainContract {
     { //если условие не выполнится будет revert(), т.е откат назад
                 depositList[_tokenId].owner = _to;
                 delTokenVallet(_tokenId);
+                UserVallet[_to].push(_tokenId);
                 emit Transfer(msg.sender, _to, depositList[_tokenId].owner);
                 //удаление токена из кошелька
             }
@@ -89,7 +91,7 @@ contract mainContract {
         isBank[_bank]=true;//giving permisson to create phones for a new vendor
     }
     //функции для разных расчетов токена
-    function getSumm(uint _changepercent, uint _amstock, uint _stockprice) public pure returns(uint)
+    function getSum(uint _changepercent, uint _amstock, uint _stockprice) public pure returns(uint)
     {
         return _amstock*(_stockprice*(1+(_changepercent / 100)));    
         
@@ -101,6 +103,14 @@ contract mainContract {
     {
         uint tkId=UserVallet[msg.sender][_num];
         return tkId;
+    }
+    function getTokenNum(uint _tokenId, address val) private view returns(uint)
+    {
+        for(uint i=0;i<UserVallet[val].length;i++)
+        {
+            if (UserVallet[val][i]==_tokenId)
+                return i;
+        }
     }
     //вывод колличества токенов в кошельке  
     function balanceOf() public view returns(uint)
@@ -114,7 +124,7 @@ contract mainContract {
     function delTokenVallet(uint _tokenId) private
     {
         require(depositList[_tokenId].owner == msg.sender);
-        delete UserVallet[msg.sender][getTokenId(_tokenId)];
+        remove(getTokenNum(_tokenId,msg.sender));
     }
      function setBank() public //установка пользователя банком 
     {
@@ -123,14 +133,11 @@ contract mainContract {
          isBank[msg.sender]=true;
      }
     }
-  //  function verificationTransaction(_tokenId) view returns(bool)
-//    {
-  //      require(countTransaction[_tokenId]++);
-    //    
-     //   
-    //}
-    //assembly function
-    //Получение информации о контракте
+  
+    function getInformationToken(uint _tokenId)public view returns(uint,uint,uint)
+    {
+        return (depositList[_tokenId].percent,depositList[_tokenId].AmStock,depositList[_tokenId].CurentAmount);
+    }
     function isContract(address addr) public view returns (bool) {
       uint size;
     assembly { size := extcodesize(addr) }
@@ -193,7 +200,10 @@ contract mainContract {
         emit TokenRecovered(_tokenId, owner);
         
     }
-    
+    function setPercent(uint _changepercent) public
+    {
+        changepercent=_changepercent;
+    }
     function SetPermissionsToRecovery(address _address) public
     {
         require(msg.sender==dev);
@@ -202,5 +212,14 @@ contract mainContract {
         
         
     }
-    
+    function remove(uint index) public {
+        if (index >= UserVallet[msg.sender].length) return;
+
+        for (uint i = index; i<UserVallet[msg.sender].length-1; i++){
+            UserVallet[msg.sender][i] = UserVallet[msg.sender][i+1];
+        }
+        delete UserVallet[msg.sender][UserVallet[msg.sender].length-1];
+        UserVallet[msg.sender].length--;
+    }
+
 }
